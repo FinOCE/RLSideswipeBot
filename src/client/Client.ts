@@ -5,6 +5,7 @@ import Event from '@structures/Event'
 
 export default class Client extends EventEmitter {
   public static readonly USER_AGENT: string = 'RLSideswipeBot/1.0.0 by SpawnRL'
+  public static readonly SELF_SR: string = 'u_RLSideswipeBot'
 
   private _token: Token | null = null
   public readyAt: Date | null = null
@@ -64,7 +65,7 @@ export default class Client extends EventEmitter {
     this.emit('ready')
   }
 
-  public post(data: PostProps): void {
+  public async post(data: PostProps): Promise<ActionResponse<CommentData>> {
     if (this._token === null)
       throw new Error('Client cannot post until it is logged in')
 
@@ -74,7 +75,7 @@ export default class Client extends EventEmitter {
     if (data.url && data.text)
       throw new Error('Posts cannot have both text and a url')
 
-    fetch('https://oauth.reddit.com/api/submit', {
+    const res = await fetch('https://oauth.reddit.com/api/submit', {
       method: 'POST',
       body: new URLSearchParams(
         Object.assign({ api_type: 'json', resubmit: 'true' }, data)
@@ -84,6 +85,31 @@ export default class Client extends EventEmitter {
         'User-Agent': Client.USER_AGENT,
         Authorization: `Bearer ${this._token.access_token}`
       }
-    })
+    }).then(res => res.json())
+
+    console.log(`[Post] Created a post on ${data.sr}`)
+
+    return res
+  }
+
+  public async comment(
+    data: CommentProps
+  ): Promise<ActionResponse<CommentData>> {
+    if (this._token === null)
+      throw new Error('Client cannot post until it is logged in')
+
+    const res = await fetch('https://oauth.reddit.com/api/comment', {
+      method: 'POST',
+      body: new URLSearchParams(Object.assign({ api_type: 'json' }, data)),
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'User-Agent': Client.USER_AGENT,
+        Authorization: `Bearer ${this._token.access_token}`
+      }
+    }).then(res => res.json())
+
+    console.log(`[Comment] Created a comment on ${data.thing_id}`)
+
+    return res
   }
 }
