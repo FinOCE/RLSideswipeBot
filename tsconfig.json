@@ -1,29 +1,37 @@
 {
-  "compilerOptions": {
-    "target": "es6",
-    "lib": [
-      "DOM",
-      "DOM.Iterable",
-      "esnext"
-    ],
-    "allowJs": true,
-    "skipLibCheck": true,
-    "strict": true,
-    "forceConsistentCasingInFileNames": true,
-    "noEmit": true,
-    "esModuleInterop": true,
-    "module": "esnext",
-    "moduleResolution": "node",
-    "resolveJsonModule": true,
-    "incremental": true,
-    "rootDir": "src",
-    "outDir": "dist"
-  },
   "include": [
-    "**/*.ts",
-    "**/*.tsx"
+    "./src"
   ],
   "exclude": [
-    "node_modules"
-  ]
+    "./node_modules"
+  ],
+  "compilerOptions": {
+    "target": "es5",
+    "module": "commonjs",
+    "outDir": "./out",
+    "rootDir": "./src",
+    "strict": true,
+    "baseUrl": "./src",
+    "paths": {
+      "@client/*": [
+        "client/*"
+      ],
+      "@structures/*": [
+        "structures/*"
+      ],
+      "@utils/*": [
+        "utils/*"
+      ]
+    },
+    "typeRoots": [
+      "./src/types",
+      "./node_modules/@types"
+    ],
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "ts-node": {
+    "files": true
+  }
 }
