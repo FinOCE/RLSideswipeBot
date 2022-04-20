@@ -63,4 +63,27 @@ export default class Client extends EventEmitter {
 
     this.emit('ready')
   }
+
+  public post(data: PostProps): void {
+    if (this._token === null)
+      throw new Error('Client cannot post until it is logged in')
+
+    if (data.kind !== 'self' && !data.url)
+      throw new Error('Posts without "self" kind need a url property')
+
+    if (data.url && data.text)
+      throw new Error('Posts cannot have both text and a url')
+
+    fetch('https://oauth.reddit.com/api/submit', {
+      method: 'POST',
+      body: new URLSearchParams(
+        Object.assign({ api_type: 'json', resubmit: 'true' }, data)
+      ),
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'User-Agent': Client.USER_AGENT,
+        Authorization: `Bearer ${this._token.access_token}`
+      }
+    })
+  }
 }
