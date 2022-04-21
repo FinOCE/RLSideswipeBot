@@ -2,6 +2,8 @@ import { EventEmitter } from 'events'
 import fetch from 'node-fetch'
 import { glob } from 'glob-promise'
 import Event from '@structures/Event'
+import CommentManager from '@structures/CommentManager'
+import PostManager from '@structures/PostManager'
 
 export default class Client extends EventEmitter {
   public static readonly USER_AGENT: string = 'RLSideswipeBot/1.0.0 by SpawnRL'
@@ -12,12 +14,16 @@ export default class Client extends EventEmitter {
     'read',
     'edit',
     'modflair',
-    'modposts'
+    'modposts',
+    'history'
   ]
 
-  private _token: Token | null = null
+  public token: Token | null = null
   public readyAt: Date | null = null
   public user: User | null = null
+
+  public posts: PostManager = new PostManager(this)
+  public comments: CommentManager = new CommentManager(this)
 
   public constructor() {
     super()
@@ -69,105 +75,23 @@ export default class Client extends EventEmitter {
         if ('error' in token)
           throw new Error(`Error ${token.error}: ${token.message}`)
 
-        this._token = token
+        this.token = token
       })
 
     // Fetch client user information
-    if (!this._token) throw new Error('Unable to authenticate client user')
+    if (!this.token) throw new Error('Unable to authenticate client user')
 
     await fetch('https://oauth.reddit.com/api/v1/me', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
         'User-Agent': Client.USER_AGENT,
-        Authorization: `Bearer ${this._token.access_token}`
+        Authorization: `Bearer ${this.token.access_token}`
       }
     })
       .then(res => res.json())
       .then((res: User) => (this.user = res))
 
     this.emit('ready')
-  }
-
-  /**
-   * Create a post
-   */
-  public async post(data: PostProps): Promise<ActionResponse<PostData>> {
-    // Handle invalid queries
-    if (this._token === null)
-      throw new Error('Client cannot post until it is logged in')
-
-    if (data.kind !== 'self' && !data.url)
-      throw new Error('Posts without "self" kind need a url property')
-
-    if (data.url && data.text)
-      throw new Error('Posts cannot have both text and a url')
-
-    // Submit API query
-    const res = await fetch('https://oauth.reddit.com/api/submit', {
-      method: 'POST',
-      body: new URLSearchParams(
-        Object.assign({ api_type: 'json', resubmit: 'true' }, data)
-      ),
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'User-Agent': Client.USER_AGENT,
-        Authorization: `Bearer ${this._token.access_token}`
-      }
-    }).then(res => res.json())
-
-    console.log(`[Post] Created a post on ${data.sr}`)
-
-    return res
-  }
-
-  /**
-   * Create a comment
-   */
-  public async comment(
-    data: CommentProps
-  ): Promise<ActionResponse<CommentData>> {
-    // Handle invalid queries
-    if (this._token === null)
-      throw new Error('Client cannot post until it is logged in')
-
-    // Submit API query
-    const res = await fetch('https://oauth.reddit.com/api/comment', {
-      method: 'POST',
-      body: new URLSearchParams(Object.assign({ api_type: 'json' }, data)),
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'User-Agent': Client.USER_AGENT,
-        Authorization: `Bearer ${this._token.access_token}`
-      }
-    }).then(res => res.json())
-
-    console.log(`[Comment] Created a comment on ${data.thing_id}`)
-
-    return res
-  }
-
-  /**
-   * Remove a contribution
-   */
-  public async remove(data: RemoveProps): Promise<{}> {
-    // Handle invalid queries
-    if (this._token === null)
-      throw new Error('Client cannot post until it is logged in')
-
-    // Submit API query
-    const res = await fetch('https://oauth.reddit.com/api/del', {
-      method: 'POST',
-      body: new URLSearchParams(data),
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'User-Agent': Client.USER_AGENT,
-        Authorization: `Bearer ${this._token.access_token}`
-      }
-    }).then(res => res.json())
-
-    console.log(`[Remove] Removed the contribution ${data.id}`)
-
-    return res
   }
 }
