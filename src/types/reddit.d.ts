@@ -29,6 +29,11 @@ type CommentProps = {
   thing_id: Fullname
 }
 
+type RemoveProps = {
+  id: string
+  spam: 'true' | 'false'
+}
+
 type ActionResponse<T> = {
   json: {
     errors: string[]
@@ -46,11 +51,11 @@ type PostData = {
 type CommentData = {
   things: {
     kind: 't1'
-    data: Comment
+    data: RedditComment
   }[]
 }
 
-type Comment = {
+type RedditComment = {
   subreddit_id: Fullname
   parent_id: Fullname
   author_fullname: Fullname
@@ -127,4 +132,148 @@ type Comment = {
   mod_reports: unknown[]
   mod_note: unknown
   distinguished: unknown
+}
+
+type User = {
+  name: string
+  created: number
+  total_karma: number
+  subreddit: Subreddit
+
+  // Unknown or unimportant properties
+  is_employee: boolean
+  seen_layout_switch: boolean
+  has_visited_new_profile: boolean
+  pref_no_profanity: boolean
+  has_external_account: boolean
+  pref_geopopular: unknown
+  seen_redesign_modal: boolean
+  pref_show_trending: boolean
+  pref_show_presence: boolean
+  snoovatar_img: unknown
+  snoovatar_size: unknown
+  gold_expiration: unknown
+  has_gold_subscription: boolean
+  is_sponsor: boolean
+  num_friends: number
+  features: {
+    mod_service_mute_writes: boolean
+    promoted_trend_blanks: boolean
+    show_amp_link: boolean
+    is_email_permission_required: boolean
+    mod_awards: boolean
+    expensive_coins_package: boolean
+    chat_subreddit: boolean
+    awards_on_streams: boolean
+    mweb_xpromo_modal_listing_click_daily_dismissible_ios: boolean
+    cookie_consent_banner: boolean
+    modlog_copyright_removal: boolean
+    do_not_track: boolean
+    mod_service_mute_reads: boolean
+    chat_user_settings: boolean
+    use_pref_account_deployment: boolean
+    mweb_xpromo_interstitial_comments_ios: boolean
+    mweb_sharing_clipboard: {
+      owner: unknown
+      variant: unknown
+      experiment_id: number
+    }
+    premium_subscriptions_table: boolean
+    mweb_xpromo_interstitial_comments_android: boolean
+    crowd_control_for_post: boolean
+    mweb_xpromo_modal_listing_click_daily_dismissible_android: boolean
+    chat_group_rollout: boolean
+    resized_styles_images: boolean
+    spez_modal: boolean
+    noreferrer_to_noopener: boolean
+  }
+  can_edit_name: boolean
+  verified: boolean
+  pref_autoplay: boolean
+  coins: number
+  has_paypal_subscription: boolean
+  has_subscribed_to_premium: boolean
+  id: string
+  has_stripe_subscription: boolean
+  oauth_client_id: string
+  can_create_subreddit: boolean
+  over_18: boolean
+  is_gold: boolean
+  is_mod: boolean
+  awarder_karma: number
+  suspension_expiration_utc: unknown
+  has_verified_email: boolean
+  is_suspended: boolean
+  pref_video_autoplay: boolean
+  has_android_subscription: boolean
+  in_redesign_beta: boolean
+  icon_img: string
+  pref_nightmode: boolean
+  awardee_karma: number
+  hide_from_robots: boolean
+  password_set: boolean
+  link_karma: number
+  force_password_reset: boolean
+  seen_give_award_tooltip: boolean
+  inbox_count: number
+  seen_premium_adblock_modal: boolean
+  pref_top_karma_subreddits: boolean
+  pref_show_snoovatar: boolean
+  pref_clickgadget: number
+  gold_creddits: number
+  created_utc: number
+  has_ios_subscription: boolean
+  pref_show_twitter: boolean
+  in_beta: boolean
+  comment_karma: number
+  accept_followers: boolean
+  has_subscribed: boolean
+  linked_identities: unknown[]
+  seen_subreddit_chat_ftux: boolean
+}
+
+type Subreddit = {
+  name: Fullname
+  display_name: string
+  description: string
+  subscribers: number
+  url: string
+
+  // Unknown or unimportant properties
+  default_set: boolean
+  user_is_contributor: boolean
+  banner_img: string
+  restrict_posting: boolean
+  user_is_banned: boolean
+  free_form_reports: boolean
+  community_icon: unknown
+  show_media: boolean
+  icon_color: unknown
+  user_is_muted: boolean
+  header_img: unknown
+  title: string
+  coins: number
+  previous_names: unknown[]
+  over_18: boolean
+  icon_size: [number, number]
+  primary_color: unknown
+  icon_img: string
+  submit_link_label: string
+  header_size: unknown
+  restrict_commenting: boolean
+  submit_text_label: string
+  is_default_icon: boolean
+  link_flair_position: unknown
+  display_name_prefixed: string
+  key_color: unknown
+  is_default_banner: boolean
+  quarantine: boolean
+  banner_size: unknown
+  user_is_moderator: boolean
+  accept_followers: boolean
+  public_description: string
+  link_flair_enabled: boolean
+  disable_contributor_requests: boolean
+  subreddit_type: string
+  user_is_subscriber: boolean
 }
