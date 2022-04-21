@@ -1,5 +1,4 @@
 import Client from '@client/Client'
-import fetch from 'node-fetch'
 
 export default class CommentManager {
   public constructor(private client: Client) {}

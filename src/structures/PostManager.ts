@@ -1,5 +1,4 @@
 import Client from '@client/Client'
-import fetch from 'node-fetch'
 
 export default class PostManager {
   public constructor(private client: Client) {}
