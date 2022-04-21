@@ -5,6 +5,38 @@ export default class CommentManager {
   public constructor(private client: Client) {}
 
   /**
+   * Fetch comments from a user
+   */
+  public async fetch(
+    data: CommentFetchProps
+  ): Promise<Listing<RedditComment, 't1'>> {
+    // Handle invalid queries
+    if (this.client.token === null)
+      throw new Error('Client cannot fetch comments until it is logged in')
+
+    // Submit API query
+    const params = new URLSearchParams({
+      sort: 'new',
+      t: 'week',
+      type: 'comments'
+    }).toString()
+
+    const res = await fetch(
+      `https://oauth.reddit.com/user/${data.username}/comments?${params}`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'User-Agent': Client.USER_AGENT,
+          Authorization: `Bearer ${this.client.token.access_token}`
+        }
+      }
+    ).then(res => res.json())
+
+    return res
+  }
+
+  /**
    * Create a comment
    */
   public async create(

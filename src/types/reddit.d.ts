@@ -12,6 +12,21 @@ type Token = {
   token_type: string
 }
 
+type Listing<T, L> = {
+  kind: 'Listing'
+  data: {
+    after?: Fullname
+    before?: Fullname
+    dist: number
+    modhash: null
+    geo_filter: ''
+    children: {
+      kind: L
+      data: T
+    }[]
+  }
+}
+
 type PostProps = {
   kind: 'self' | 'link' | 'image' | 'video' | 'videogif'
   title: string
@@ -53,6 +68,10 @@ type CommentData = {
     kind: 't1'
     data: RedditComment
   }[]
+}
+
+type CommentFetchProps = {
+  username: string
 }
 
 type RedditComment = {
