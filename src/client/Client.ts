@@ -49,48 +49,62 @@ export default class Client extends EventEmitter {
     return this.readyAt?.getTime() ?? null
   }
 
-  public async login(clientId: string, clientSecret: string) {
+  /**
+   * Submit a query to the Reddit API
+   */
+  public async query<T>(url: string, data?: QueryData): Promise<T> {
+    // Handle invalid queries
+    if (this.token === null && !data?.authorization)
+      throw new Error('Client cannot submit queries before it is logged in')
+
+    // Submit query
+    const res = await fetch(
+      `https://${data?.www ? 'www' : 'oauth'}.reddit.com${url}`,
+      {
+        method: data?.method ? data.method : 'GET',
+        body: data?.body ? new URLSearchParams(data.body) : undefined,
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'User-Agent': Client.USER_AGENT,
+          Authorization: data?.authorization
+            ? data.authorization
+            : `Bearer ${this.token!.access_token}`
+        }
+      }
+    ).then(res => res.json())
+
+    // Return result of query as the given type
+    return res as T
+  }
+
+  public async login(clientId: string, clientSecret: string): Promise<void> {
     // Handle invalid queries
     if (!clientId || !clientSecret) throw new Error('Missing credentials')
 
     // Authenticate with OAuth
-    await fetch('https://www.reddit.com/api/v1/access_token', {
+    await this.query<Token | APIError>('/api/v1/access_token', {
+      www: true,
       method: 'POST',
-      body: new URLSearchParams({
+      body: {
         grant_type: 'password',
         username: process.env.REDDIT_USERNAME!,
         password: process.env.REDDIT_PASSWORD!,
         scope: Client.SCOPES.join(' ')
-      }),
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'User-Agent': Client.USER_AGENT,
-        Authorization: `Basic ${Buffer.from(
-          `${clientId}:${clientSecret}`
-        ).toString('base64')}`
-      }
-    })
-      .then(res => res.json())
-      .then((token: Token | APIError) => {
-        if ('error' in token)
-          throw new Error(`Error ${token.error}: ${token.message}`)
+      },
+      authorization: `Basic ${Buffer.from(
+        `${clientId}:${clientSecret}`
+      ).toString('base64')}`
+    }).then(token => {
+      if ('error' in token)
+        throw new Error(`Error ${token.error}: ${token.message}`)
 
-        this.token = token
-      })
+      this.token = token
+    })
 
     // Fetch client user information
     if (!this.token) throw new Error('Unable to authenticate client user')
 
-    await fetch('https://oauth.reddit.com/api/v1/me', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'User-Agent': Client.USER_AGENT,
-        Authorization: `Bearer ${this.token.access_token}`
-      }
-    })
-      .then(res => res.json())
-      .then((res: User) => (this.user = res))
+    this.user = await this.query<User>('/api/v1/me')
 
     this.emit('ready')
   }

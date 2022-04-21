@@ -10,31 +10,18 @@ export default class CommentManager {
   public async fetch(
     data: CommentFetchProps
   ): Promise<Listing<RedditComment, 't1'>> {
-    // Handle invalid queries
-    if (this.client.token === null)
-      throw new Error('Client cannot fetch comments until it is logged in')
-
-    // Submit API query
     const params = new URLSearchParams({
       sort: 'new',
       t: 'week',
       type: 'comments'
     }).toString()
 
-    const res = await fetch(
-      `https://oauth.reddit.com/user/${data.username}/comments?${params}`,
-      {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'User-Agent': Client.USER_AGENT,
-          Authorization: `Bearer ${this.client.token.access_token}`
-        }
-      }
-    ).then(res => res.json())
-
-    return res
+    return this.client.query<Listing<RedditComment, 't1'>>(
+      `/user/${data.username}/comments?${params}`
+    )
   }
+
+  // /api/distinguish - sticky comments?
 
   /**
    * Create a comment
@@ -42,23 +29,15 @@ export default class CommentManager {
   public async create(
     data: CommentProps
   ): Promise<ActionResponse<CommentData>> {
-    // Handle invalid queries
-    if (this.client.token === null)
-      throw new Error('Client cannot create comments until it is logged in')
-
-    // Submit API query
-    const res = await fetch('https://oauth.reddit.com/api/comment', {
-      method: 'POST',
-      body: new URLSearchParams(Object.assign({ api_type: 'json' }, data)),
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'User-Agent': Client.USER_AGENT,
-        Authorization: `Bearer ${this.client.token.access_token}`
+    const res = await this.client.query<ActionResponse<CommentData>>(
+      '/api/comment',
+      {
+        method: 'POST',
+        body: Object.assign({ api_type: 'json' }, data)
       }
-    }).then(res => res.json())
+    )
 
     this.client.emit('commentCreate', data, res)
-
     return res
   }
 
@@ -66,23 +45,12 @@ export default class CommentManager {
    * Remove a comment
    */
   public async remove(data: RemoveProps): Promise<{}> {
-    // Handle invalid queries
-    if (this.client.token === null)
-      throw new Error('Client cannot remove comments until it is logged in')
-
-    // Submit API query
-    const res = await fetch('https://oauth.reddit.com/api/del', {
+    const res = await this.client.query<{}>('/api/del', {
       method: 'POST',
-      body: new URLSearchParams(data),
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'User-Agent': Client.USER_AGENT,
-        Authorization: `Bearer ${this.client.token.access_token}`
-      }
-    }).then(res => res.json())
+      body: data
+    })
 
     this.client.emit('commentRemove', res, data)
-
     return res
   }
 }
