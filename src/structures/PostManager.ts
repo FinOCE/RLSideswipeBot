@@ -28,7 +28,7 @@ export default class PostManager {
   }
 
   /**
-   * Remove a comment
+   * Remove a post
    */
   public async remove(data: RemoveProps): Promise<{}> {
     const res = await this.client.query<{}>('/api/del', {

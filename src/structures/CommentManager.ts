@@ -20,7 +20,17 @@ export default class CommentManager {
     )
   }
 
-  // /api/distinguish - sticky comments?
+  /**
+   * Distinguish a comment with a sigil or sticky
+   */
+  public async distinguish(
+    data: CommentDistinguishProps
+  ): Promise<ActionResponse<CommentData>> {
+    return this.client.query('/api/distinguish', {
+      method: 'POST',
+      body: Object.assign({ api_type: 'json' }, data)
+    })
+  }
 
   /**
    * Create a comment

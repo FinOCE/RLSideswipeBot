@@ -9,7 +9,6 @@ export default class extends Event {
   }
 
   public async run(): Promise<void> {
-    this.client.readyAt = new Date()
     console.log(`${this.client.user!.name} is now online`)
   }
 }

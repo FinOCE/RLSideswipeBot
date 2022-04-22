@@ -74,6 +74,12 @@ type CommentFetchProps = {
   username: string
 }
 
+type CommentDistinguishProps = {
+  how: 'yes' | 'no' | 'admin' | 'special'
+  id: Fullname
+  sticky: 'true' | 'false'
+}
+
 type RedditComment = {
   subreddit_id: Fullname
   parent_id: Fullname

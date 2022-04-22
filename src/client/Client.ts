@@ -106,6 +106,7 @@ export default class Client extends EventEmitter {
 
     this.user = await this.query<User>('/api/v1/me')
 
+    this.readyAt = new Date()
     this.emit('ready')
   }
 }
