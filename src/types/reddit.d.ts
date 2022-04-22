@@ -1,18 +1,27 @@
 type Fullname = string
 
+type TypePrefix = 't1' | 't2' | 't3' | 't4' | 't5' | 't6'
+type TypeName =
+  | 'COMMENT'
+  | 'ACCOUNT'
+  | 'LINK'
+  | 'MESSAGE'
+  | 'SUBREDDIT'
+  | 'AWARD'
+
 type APIError = {
   message: string
   error: number
 }
 
-type Token = {
-  access_token: string
-  expires_in: number
-  scope: string
-  token_type: string
+type ActionResponse<T> = {
+  json: {
+    errors: string[]
+    data: T
+  }
 }
 
-type Listing<T, L> = {
+type RawListing<T, L extends TypePrefix> = {
   kind: 'Listing'
   data: {
     after?: Fullname
@@ -27,6 +36,13 @@ type Listing<T, L> = {
   }
 }
 
+type Token = {
+  access_token: string
+  expires_in: number
+  scope: string
+  token_type: string
+}
+
 type PostProps = {
   kind: 'self' | 'link' | 'image' | 'video' | 'videogif'
   title: string
@@ -39,28 +55,16 @@ type PostProps = {
   spoiler?: 'true' | 'false'
 }
 
-type CommentProps = {
-  text: string
-  thing_id: Fullname
-}
-
-type RemoveProps = {
-  id: string
-  spam: 'true' | 'false'
-}
-
-type ActionResponse<T> = {
-  json: {
-    errors: string[]
-    data: T
-  }
-}
-
 type PostData = {
   url: string
   drafts_count: number
   id: string
   name: Fullname
+}
+
+type CommentProps = {
+  text: string
+  thing_id: Fullname
 }
 
 type CommentData = {
@@ -78,6 +82,11 @@ type CommentDistinguishProps = {
   how: 'yes' | 'no' | 'admin' | 'special'
   id: Fullname
   sticky: 'true' | 'false'
+}
+
+type RemoveProps = {
+  id: string
+  spam: 'true' | 'false'
 }
 
 type RedditComment = {

@@ -16,6 +16,9 @@
       "@client/*": [
         "client/*"
       ],
+      "@managers/*": [
+        "managers/*"
+      ],
       "@structures/*": [
         "structures/*"
       ],

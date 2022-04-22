@@ -6,7 +6,7 @@ export default class PostManager {
   /**
    * Create a post
    */
-  public async create(data: PostProps): Promise<ActionResponse<PostData>> {
+  public async create(data: PostProps): Promise<PostData> {
     // Handle invalid queries
     if (data.kind !== 'self' && !data.url)
       throw new Error('Posts without "self" kind need a url property')
@@ -15,13 +15,12 @@ export default class PostManager {
       throw new Error('Posts cannot have both text and a url')
 
     // Submit API query
-    const res = await this.client.query<ActionResponse<PostData>>(
-      '/api/submit',
-      {
+    const res = await this.client
+      .query<ActionResponse<PostData>>('/api/submit', {
         method: 'POST',
         body: Object.assign({ api_type: 'json', resubmit: 'true' }, data)
-      }
-    )
+      })
+      .then(res => res.json.data)
 
     this.client.emit('postCreate', data, res)
     return res
@@ -30,13 +29,12 @@ export default class PostManager {
   /**
    * Remove a post
    */
-  public async remove(data: RemoveProps): Promise<{}> {
-    const res = await this.client.query<{}>('/api/del', {
+  public async remove(data: RemoveProps): Promise<void> {
+    await this.client.query<{}>('/api/del', {
       method: 'POST',
       body: data
     })
 
-    this.client.emit('postRemove', data, res)
-    return res
+    this.client.emit('postRemove', data)
   }
 }

@@ -6,7 +6,7 @@ export default class extends Event {
     super(client)
   }
 
-  public async run(data: RemoveProps, res: {}): Promise<void> {
+  public async run(data: RemoveProps): Promise<void> {
     console.log(
       `[Remove] Removed the post ${data.id} ${data.spam ? '(spam)' : ''}`
     )

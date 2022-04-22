@@ -2,8 +2,8 @@ import { EventEmitter } from 'events'
 import fetch from 'node-fetch'
 import { glob } from 'glob-promise'
 import Event from '@structures/Event'
-import CommentManager from '@structures/CommentManager'
-import PostManager from '@structures/PostManager'
+import CommentManager from '@managers/CommentManager'
+import PostManager from '@managers/PostManager'
 
 export default class Client extends EventEmitter {
   public static readonly USER_AGENT: string = 'RLSideswipeBot/1.0.0 by SpawnRL'
