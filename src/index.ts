@@ -6,7 +6,17 @@ import process from 'process'
 dotenv.config()
 process.stdin.resume()
 
-const client = new Client()
+const client = new Client({
+  scopes: [
+    'identity',
+    'submit',
+    'read',
+    'edit',
+    'modflair',
+    'modposts',
+    'history'
+  ]
+})
 client.login(
   process.env.REDDIT_USERNAME!,
   process.env.REDDIT_PASSWORD!,
@@ -22,7 +32,7 @@ client.once('ready', () => {
       const post = await comment.fetchPost()
 
       // Change flair of post to PSYONIX COMMENT
-      if (!post.flairText?.includes('PSYONIX COMMENT'))
+      if (!post.flairText?.includes('PSYONIX'))
         post.flair({
           css_class: '.linkflair-psycomment',
           text: ':Psyonix: PSYONIX COMMENT'

@@ -8,16 +8,8 @@ import PostManager from '@managers/PostManager'
 export default class Client extends EventEmitter {
   public static readonly USER_AGENT: string = 'RLSideswipeBot/1.0.0 by SpawnRL'
   public static readonly SELF_SR: string = 'u_RLSideswipeBot'
-  public static readonly SCOPES: string[] = [
-    'identity',
-    'submit',
-    'read',
-    'edit',
-    'modflair',
-    'modposts',
-    'history'
-  ]
 
+  public scopes: string[]
   public token: Token | null = null
   public readyAt: Date | null = null
   public user: User | null = null
@@ -25,8 +17,10 @@ export default class Client extends EventEmitter {
   public posts: PostManager = new PostManager(this)
   public comments: CommentManager = new CommentManager(this)
 
-  public constructor() {
+  public constructor(data: ClientData) {
     super()
+
+    this.scopes = data.scopes
 
     // Map events to the EventEmitter
     glob('*', { cwd: './src/client/events' }, (err, files) => {
@@ -97,7 +91,7 @@ export default class Client extends EventEmitter {
         grant_type: 'password',
         username,
         password,
-        scope: Client.SCOPES.join(' ')
+        scope: this.scopes.join(' ')
       },
       authorization: `Basic ${Buffer.from(
         `${clientId}:${clientSecret}`
