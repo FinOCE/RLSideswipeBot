@@ -1,13 +1,21 @@
 import Client from '@client/Client'
+import Post from '@structures/Post'
 
 export default class Comment {
+  public static readonly QUOTE_HEADER: string =
+    'This is a list of links to comments made by Psyonix Staff in this thread:\n\n'
+  public static readonly QUOTE_FOOTER: string =
+    '\n\n---\nThis is a bot providing a service. If you have any questions, please [contact the moderators](https://www.reddit.com/message/compose?to=/r/RLSideswipe).\n'
   public readonly id: Fullname
   public readonly parentId: Fullname
   public readonly postId: Fullname
-  public readonly subredditId: Fullname
+  public readonly subreddit: {
+    id: Fullname
+    name: string
+  }
   public readonly url: string
   public readonly createdTimestamp: number
-  public readonly text: string
+  public text: string
   public readonly votes: {
     score: number
     ups: number
@@ -23,7 +31,10 @@ export default class Comment {
     this.id = data.name
     this.parentId = data.parent_id
     this.postId = 't3_' + data.permalink.split('/comments/')[1].split('/')[0]
-    this.subredditId = data.subreddit_id
+    this.subreddit = {
+      id: data.subreddit_id,
+      name: data.subreddit
+    }
     this.url = data.permalink
     this.createdTimestamp = data.created_utc
     this.text = data.body
@@ -44,6 +55,18 @@ export default class Comment {
    */
   public async reply(text: string): Promise<Comment> {
     return this.client.comments.create({
+      thing_id: this.id,
+      text
+    })
+  }
+
+  /**
+   * Edit the message
+   */
+  public async edit(text: string): Promise<Comment> {
+    this.text = text
+
+    return this.client.comments.edit({
       thing_id: this.id,
       text
     })
@@ -76,6 +99,17 @@ export default class Comment {
   public async remove(spam: boolean = false): Promise<void> {
     this.removed = true
     await this.client.comments.remove(this.id, spam ? 'true' : 'false')
+  }
+
+  /**
+   * Get the post the comment is on
+   */
+  public async fetchPost(): Promise<Post> {
+    return (await this.client.posts.fetch([this.postId])).children[0]
+  }
+
+  public get quote(): string {
+    return `- [__**Comment by ${this.author.username}**__](${this.url}):\n> ${this.text}`
   }
 }
 

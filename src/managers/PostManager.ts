@@ -55,11 +55,14 @@ export default class PostManager {
   /**
    * Update the flair of a post
    */
-  public async flair(data: FlairProps): Promise<any> {
-    const res = await this.client.query<RedditPost>('/api/flair', {
-      method: 'POST',
-      body: Object.assign({ api_type: 'json' }, data)
-    })
+  public async flair(data: FlairProps): Promise<Post> {
+    const res = await this.client
+      .query<ActionResponse<PostApproveResponse>>('/api/flair', {
+        method: 'POST',
+        body: Object.assign({ api_type: 'json' }, data)
+      })
+      .then(res => res.json.data.things[0].data)
+      .then(res => new Post(this.client, res))
 
     this.client.emit('postFlairUpdate', res)
     return res

@@ -40,14 +40,32 @@ export default class CommentManager {
         )
         .then(res => new Listing(this.client, res, Comment))
     } else if ('sr' in data) {
-      // Search by subreddit
+      // Search by subreddit or specific post
       return this.client
-        .query<RawListing<RedditComment>>(`/r/${data.sr}/comments`)
+        .query<RawListing<RedditComment>>(
+          `/r/${data.sr}/comments/${data.postId ?? ''}`
+        )
         .then(res => new Listing(this.client, res, Comment))
     } else
       throw new Error(
         'Neither a username nor subreddit were provided to fetch comments from'
       )
+  }
+
+  /**
+   * Edit a comment
+   */
+  public async edit(data: CommentProps): Promise<Comment> {
+    const res = await this.client
+      .query<ActionResponse<CommentData>>('/api/editusertext', {
+        method: 'POST',
+        body: Object.assign({ api_type: 'json' }, data)
+      })
+      .then(res => res.json.data.things[0].data)
+      .then(res => new Comment(this.client, res))
+
+    this.client.emit('commentEdit', data)
+    return res
   }
 
   /**

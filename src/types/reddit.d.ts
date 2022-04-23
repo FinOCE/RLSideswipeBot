@@ -87,6 +87,7 @@ type CommentFetchProps =
     }
   | {
       sr: string
+      postId?: Fullname
     }
 
 type CommentDistinguishProps = {
