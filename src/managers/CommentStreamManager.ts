@@ -1,4 +1,5 @@
 import Client from '@client/Client'
+import Comment from '@structures/Comment'
 
 export default class CommentStream {
   public static readonly MIN_DELAY = 4
@@ -12,7 +13,7 @@ export default class CommentStream {
   /**
    * Start the comment stream
    */
-  public start(callback: (comment: RedditComment) => void | Promise<void>) {
+  public start(callback: (comment: Comment) => void | Promise<void>) {
     let seconds = CommentStream.MIN_DELAY
     let counter = 0
 
@@ -56,8 +57,8 @@ export default class CommentStream {
       sr: this.subreddit
     })
 
-    const maxIndex = comments.findIndex(c => c.name === this.prev)
-    this.prev = comments[0].name
+    const maxIndex = comments.findIndex(c => c.id === this.prev)
+    this.prev = comments[0].id
 
     const newComments = comments
       .slice(0, maxIndex === -1 ? undefined : maxIndex)

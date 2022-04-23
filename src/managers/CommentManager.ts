@@ -1,5 +1,6 @@
 import Client from '@client/Client'
 import CommentStreamManager from '@managers/CommentStreamManager'
+import Comment from '@structures/Comment'
 import Listing from '@structures/Listing'
 
 export default class CommentManager {
@@ -10,7 +11,7 @@ export default class CommentManager {
    */
   public stream(
     subreddit: string,
-    callback: (comment: RedditComment) => void | Promise<void>
+    callback: (comment: Comment) => void | Promise<void>
   ): CommentStreamManager {
     const stream = new CommentStreamManager(this.client, subreddit)
     stream.start(callback)
@@ -22,7 +23,7 @@ export default class CommentManager {
    */
   public async fetch(
     data: CommentFetchProps
-  ): Promise<Listing<RedditComment, 't1'>> {
+  ): Promise<Listing<RedditComment, Comment>> {
     if ('username' in data) {
       // Search by username
       const params = new URLSearchParams({
@@ -32,15 +33,15 @@ export default class CommentManager {
       }).toString()
 
       return this.client
-        .query<RawListing<RedditComment, 't1'>>(
+        .query<RawListing<RedditComment>>(
           `/user/${data.username}/comments?${params}`
         )
-        .then(res => new Listing(res))
+        .then(res => new Listing(this.client, res, Comment))
     } else if ('sr' in data) {
       // Search by subreddit
       return this.client
-        .query<RawListing<RedditComment, 't1'>>(`/r/${data.sr}/comments`)
-        .then(res => new Listing(res))
+        .query<RawListing<RedditComment>>(`/r/${data.sr}/comments`)
+        .then(res => new Listing(this.client, res, Comment))
     } else
       throw new Error(
         'Neither a username nor subreddit were provided to fetch comments from'
@@ -50,27 +51,27 @@ export default class CommentManager {
   /**
    * Distinguish a comment with a sigil or sticky
    */
-  public async distinguish(
-    data: CommentDistinguishProps
-  ): Promise<RedditComment> {
+  public async distinguish(data: CommentDistinguishProps): Promise<Comment> {
     return this.client
       .query<ActionResponse<CommentData>>('/api/distinguish', {
         method: 'POST',
         body: Object.assign({ api_type: 'json' }, data)
       })
       .then(res => res.json.data.things[0].data)
+      .then(res => new Comment(this.client, res))
   }
 
   /**
    * Create a comment
    */
-  public async create(data: CommentProps): Promise<RedditComment> {
+  public async create(data: CommentProps): Promise<Comment> {
     const res = await this.client
       .query<ActionResponse<CommentData>>('/api/comment', {
         method: 'POST',
         body: Object.assign({ api_type: 'json' }, data)
       })
       .then(res => res.json.data.things[0].data)
+      .then(res => new Comment(this.client, res))
 
     this.client.emit('commentCreate', data, res)
     return res

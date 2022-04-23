@@ -21,7 +21,7 @@ type ActionResponse<T> = {
   }
 }
 
-type RawListing<T, L extends TypePrefix> = {
+type RawListing<T> = {
   kind: 'Listing'
   data: {
     after?: Fullname
@@ -30,7 +30,7 @@ type RawListing<T, L extends TypePrefix> = {
     modhash: null
     geo_filter: ''
     children: {
-      kind: L
+      kind: TypePrefix
       data: T
     }[]
   }
@@ -105,6 +105,7 @@ type RedditComment = {
   downs: number
   removed: boolean
   is_submitter: boolean
+  author_flair_text: string | null
 
   // Unknown or unimportant properties
   approved_at_utc: unknown
@@ -158,7 +159,6 @@ type RedditComment = {
   score_hidden: boolean
   subreddit_type: unknown
   locked: boolean
-  author_flair_text: unknown
   treatment_tags: unknown[]
   rte_mode: unknown
   link_id: Fullname

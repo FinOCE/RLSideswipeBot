@@ -1,4 +1,5 @@
 import Client from '@client/Client'
+import Comment from '@structures/Comment'
 import Event from '@structures/Event'
 
 export default class extends Event {
@@ -6,7 +7,7 @@ export default class extends Event {
     super(client)
   }
 
-  public async run(data: CommentProps, res: RedditComment): Promise<void> {
-    console.log(`[Comment] Created a comment ${res.name} on ${data.thing_id}`)
+  public async run(data: CommentProps, res: Comment): Promise<void> {
+    console.log(`[Comment] Created a comment ${res.id} on ${data.thing_id}`)
   }
 }

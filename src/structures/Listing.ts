@@ -1,6 +1,7 @@
+import Client from '@client/Client'
 import ThingUtil from '@utils/ThingUtil'
 
-export default class Listing<T, L extends TypePrefix> {
+export default class Listing<T1, T2> {
   public readonly position: {
     after?: Fullname
     before?: Fullname
@@ -9,9 +10,13 @@ export default class Listing<T, L extends TypePrefix> {
   public readonly modhash: null
   public readonly geoFilter: string
   public readonly type: TypeName
-  public children: T[]
+  public children: T2[]
 
-  public constructor(listing: RawListing<T, L>) {
+  public constructor(
+    private client: Client,
+    listing: RawListing<T1>,
+    constructor: new (client: Client, data: T1) => T2
+  ) {
     this.position = {
       after: listing.data.after,
       before: listing.data.before
@@ -22,7 +27,9 @@ export default class Listing<T, L extends TypePrefix> {
     this.type = ThingUtil.convertTypePrefixToName(
       listing.data.children[0]?.kind
     )
-    this.children = listing.data.children.map(c => c.data)
+    this.children = listing.data.children.map(
+      c => new constructor(this.client, c.data)
+    )
   }
 
   public get size(): number {
