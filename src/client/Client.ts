@@ -77,9 +77,15 @@ export default class Client extends EventEmitter {
     return res as T
   }
 
-  public async login(clientId: string, clientSecret: string): Promise<void> {
+  public async login(
+    username: string,
+    password: string,
+    clientId: string,
+    clientSecret: string
+  ): Promise<void> {
     // Handle invalid queries
-    if (!clientId || !clientSecret) throw new Error('Missing credentials')
+    if (!username || !password || !clientId || !clientSecret)
+      throw new Error('Missing credentials')
 
     // Authenticate with OAuth
     await this.query<Token | APIError>('/api/v1/access_token', {
@@ -87,8 +93,8 @@ export default class Client extends EventEmitter {
       method: 'POST',
       body: {
         grant_type: 'password',
-        username: process.env.REDDIT_USERNAME!,
-        password: process.env.REDDIT_PASSWORD!,
+        username,
+        password,
         scope: Client.SCOPES.join(' ')
       },
       authorization: `Basic ${Buffer.from(
