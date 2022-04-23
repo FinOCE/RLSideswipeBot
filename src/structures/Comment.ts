@@ -3,6 +3,7 @@ import Client from '@client/Client'
 export default class Comment {
   public readonly id: Fullname
   public readonly parentId: Fullname
+  public readonly postId: Fullname
   public readonly subredditId: Fullname
   public readonly url: string
   public readonly createdTimestamp: number
@@ -21,6 +22,7 @@ export default class Comment {
   public constructor(private client: Client, data: RedditComment) {
     this.id = data.name
     this.parentId = data.parent_id
+    this.postId = 't3_' + data.permalink.split('/comments/')[1].split('/')[0]
     this.subredditId = data.subreddit_id
     this.url = data.permalink
     this.createdTimestamp = data.created_utc

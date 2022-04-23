@@ -13,9 +13,11 @@ export default class CommentManager {
     subreddit: string,
     callback: (comment: Comment) => void | Promise<void>
   ): CommentStreamManager {
-    const stream = new CommentStreamManager(this.client, subreddit)
-    stream.start(callback)
-    return stream
+    const res = new CommentStreamManager(this.client, subreddit)
+    res.start(callback)
+
+    this.client.emit('commentStreamCreate', res)
+    return res
   }
 
   /**
@@ -52,26 +54,32 @@ export default class CommentManager {
    * Distinguish a comment with a sigil or sticky
    */
   public async distinguish(data: CommentDistinguishProps): Promise<Comment> {
-    return this.client
+    const res = await this.client
       .query<ActionResponse<CommentData>>('/api/distinguish', {
         method: 'POST',
         body: Object.assign({ api_type: 'json' }, data)
       })
       .then(res => res.json.data.things[0].data)
       .then(res => new Comment(this.client, res))
+
+    this.client.emit('commentDistinguish', res)
+    return res
   }
 
   /**
    * Approve a comment
    */
   public async approve(data: CommentApproveProps): Promise<Comment> {
-    return this.client
+    const res = await this.client
       .query<ActionResponse<CommentData>>('/api/approve', {
         method: 'POST',
         body: data
       })
       .then(res => res.json.data.things[0].data)
       .then(res => new Comment(this.client, res))
+
+    this.client.emit('commentApprove', res)
+    return res
   }
 
   /**
