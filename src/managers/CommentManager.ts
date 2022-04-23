@@ -69,17 +69,13 @@ export default class CommentManager {
   /**
    * Approve a comment
    */
-  public async approve(data: CommentApproveProps): Promise<Comment> {
-    const res = await this.client
-      .query<ActionResponse<CommentData>>('/api/approve', {
-        method: 'POST',
-        body: data
-      })
-      .then(res => res.json.data.things[0].data)
-      .then(res => new Comment(this.client, res))
+  public async approve(id: Fullname): Promise<void> {
+    await this.client.query<void>('/api/approve', {
+      method: 'POST',
+      body: { id }
+    })
 
-    this.client.emit('commentApprove', res)
-    return res
+    this.client.emit('commentApprove', id)
   }
 
   /**
@@ -101,12 +97,12 @@ export default class CommentManager {
   /**
    * Remove a comment
    */
-  public async remove(data: RemoveProps): Promise<void> {
+  public async remove(id: Fullname, spam: 'true' | 'false'): Promise<void> {
     await this.client.query<{}>('/api/del', {
       method: 'POST',
-      body: data
+      body: { id, spam }
     })
 
-    this.client.emit('commentRemove', data)
+    this.client.emit('commentRemove', id, spam)
   }
 }

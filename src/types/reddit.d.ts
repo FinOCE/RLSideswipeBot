@@ -62,6 +62,13 @@ type PostData = {
   name: Fullname
 }
 
+type PostApproveResponse = {
+  things: {
+    kind: 't3'
+    data: RedditPost
+  }[]
+}
+
 type CommentProps = {
   text: string
   thing_id: Fullname
@@ -88,8 +95,10 @@ type CommentDistinguishProps = {
   sticky: 'true' | 'false'
 }
 
-type CommentApproveProps = {
-  id: Fullname
+type FlairProps = {
+  link: Fullname
+  css_class: string
+  text: string
 }
 
 type RemoveProps = {
@@ -174,6 +183,120 @@ type RedditComment = {
   mod_reports: unknown[]
   mod_note: unknown
   distinguished: unknown
+}
+
+type RedditPost = {
+  author_flair_background_color: string | null
+  approved_at_utc: number | null
+  subreddit: string
+  selftext: string
+  author_fullname: Fullname
+  saved: boolean
+  mod_reason_title: string | null
+  gilded: number
+  clicked: boolean
+  title: string
+  link_flair_richtext: string[]
+  subreddit_name_prefixed: string
+  hidden: boolean
+  pwls: number | null
+  link_flair_css_class: string | null
+  downs: number
+  thumbnail_height: number | null
+  top_awarded_type: string | null
+  hide_score: boolean
+  name: Fullname
+  quarantine: boolean
+  link_flair_text_color: string
+  upvote_ratio: number
+  ignore_reports: boolean
+  ups: number
+  domain: string
+  media_embed: unknown
+  thumbnail_width: number | null
+  author_flair_template_id: string | null
+  is_original_content: boolean
+  user_reports: unknown[]
+  secure_media: unknown
+  is_reddit_media_domain: boolean
+  is_meta: boolean
+  category: unknown
+  secure_media_embed: unknown
+  link_flair_text: string | null
+  can_mod_post: boolean
+  score: number
+  approved_by: string | null
+  is_created_from_ads_ui: boolean
+  author_premium: boolean
+  thumbnail: string
+  edited: boolean
+  author_flair_css_class: string | null
+  author_flair_richtext: unknown[]
+  gildings: unknown
+  content_categories: unknown
+  is_self: boolean
+  subreddit_type: string
+  created: number
+  link_flair_type: string
+  wls: number | null
+  removed_by_category: string | null
+  banned_by: string | null
+  author_flair_type: string
+  total_awards_received: number
+  allow_live_comments: boolean
+  selftext_html: string
+  likes: boolean
+  suggested_sort: string
+  banned_at_utc: number | null
+  view_count: number | null
+  archived: boolean
+  no_follow: boolean
+  spam: boolean
+  is_crosspostable: boolean
+  pinned: boolean
+  over_18: boolean
+  all_awardings: unknown[]
+  awarders: unknown[]
+  media_only: boolean
+  can_gild: boolean
+  removed: boolean
+  spoiler: boolean
+  locked: boolean
+  author_flair_text: string | null
+  treatment_tags: unknown[]
+  rte_mode: string
+  visited: boolean
+  removed_by: string | null
+  mod_note: string | null
+  distinguished: unknown
+  subreddit_id: Fullname
+  author_is_blocked: boolean
+  mod_reason_by: string | null
+  num_reports: number
+  removal_reason: string | null
+  link_flair_background_color: string
+  id: string
+  is_robot_indexable: boolean
+  report_reasons: unknown[]
+  author: string
+  discussion_type: unknown
+  num_comments: number
+  send_replies: boolean
+  whitelist_status: unknown
+  contest_mode: boolean
+  mod_reports: unknown[]
+  author_patreon_flair: boolean
+  approved: boolean
+  author_flair_text_color: string | null
+  permalink: string
+  parent_whitelist_status: unknown
+  stickied: boolean
+  url: string
+  subreddit_subscribers: number
+  created_utc: number
+  num_crossposts: number
+  media: unknown
+  is_video: boolean
 }
 
 type User = {

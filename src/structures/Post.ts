@@ -1,9 +1,8 @@
 import Client from '@client/Client'
+import Comment from '@structures/Comment'
 
-export default class Comment {
+export default class Post {
   public readonly id: Fullname
-  public readonly parentId: Fullname
-  public readonly postId: Fullname
   public readonly subredditId: Fullname
   public readonly url: string
   public readonly createdTimestamp: number
@@ -13,26 +12,24 @@ export default class Comment {
     ups: number
     downs: number
   }
-  public readonly author: CommentAuthor
+  public readonly author: PostAuthor
   public readonly edited: boolean
   public stickied: boolean
   public removed: boolean
   public approved: boolean
 
-  public constructor(private client: Client, data: RedditComment) {
+  public constructor(private client: Client, data: RedditPost) {
     this.id = data.name
-    this.parentId = data.parent_id
-    this.postId = 't3_' + data.permalink.split('/comments/')[1].split('/')[0]
     this.subredditId = data.subreddit_id
     this.url = data.permalink
     this.createdTimestamp = data.created_utc
-    this.text = data.body
+    this.text = data.selftext
     this.votes = {
       score: data.score,
       ups: data.ups,
       downs: data.downs
     }
-    this.author = new CommentAuthor(data)
+    this.author = new PostAuthor(data)
     this.edited = data.edited
     this.stickied = data.stickied
     this.removed = data.removed
@@ -40,9 +37,9 @@ export default class Comment {
   }
 
   /**
-   * Reply to the comment
+   * Comment on the post
    */
-  public async reply(text: string): Promise<Comment> {
+  public async comment(text: string): Promise<Comment> {
     return this.client.comments.create({
       thing_id: this.id,
       text
@@ -50,24 +47,11 @@ export default class Comment {
   }
 
   /**
-   * Make the comment sticky (Only works on moderator comments)
-   */
-  public async sticky(): Promise<Comment> {
-    this.stickied = true
-
-    return this.client.comments.distinguish({
-      id: this.id,
-      how: 'yes',
-      sticky: 'true'
-    })
-  }
-
-  /**
-   * Approve the comment
+   * Approve the post
    */
   public async approve(): Promise<void> {
     this.approved = true
-    await this.client.comments.approve(this.id)
+    await this.client.posts.approve(this.id)
   }
 
   /**
@@ -75,20 +59,18 @@ export default class Comment {
    */
   public async remove(spam: boolean = false): Promise<void> {
     this.removed = true
-    await this.client.comments.remove(this.id, spam ? 'true' : 'false')
+    await this.client.posts.remove(this.id, spam ? 'true' : 'false')
   }
 }
 
-export class CommentAuthor {
+export class PostAuthor {
   public readonly id: Fullname
   public readonly username: string
-  public readonly op: boolean
   public readonly flair: string | null
 
-  public constructor(data: RedditComment) {
+  public constructor(data: RedditPost) {
     this.id = data.author_fullname
     this.username = data.author
-    this.op = data.is_submitter
     this.flair = data.author_flair_text
   }
 }

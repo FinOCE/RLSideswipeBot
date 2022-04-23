@@ -1,5 +1,5 @@
 import Client from '@client/Client'
-import Comment from '@structures/Comment'
+import Post from '@structures/Post'
 import Event from '@structures/Event'
 
 export default class extends Event {
@@ -7,7 +7,7 @@ export default class extends Event {
     super(client)
   }
 
-  public async run(id: Fullname): Promise<void> {
-    console.log(`[Comment] Approved a comment ${id}`)
+  public async run(res: Post): Promise<void> {
+    console.log(`[Post] Updated the flair on post ${res.id}`)
   }
 }

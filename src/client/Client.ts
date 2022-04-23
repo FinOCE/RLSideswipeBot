@@ -36,7 +36,9 @@ export default class Client extends EventEmitter {
         .map(file => file.replace('.ts', ''))
         .forEach(file => {
           const event: Event = new (require(`./events/${file}`).default)(this)
-          this[event.method](file, (...args) => event.run(...args))
+          const method =
+            event.method === 'once' ? 'prependOnceListener' : 'prependListener'
+          this[method](file, (...args) => event.run(...args))
         })
     })
   }

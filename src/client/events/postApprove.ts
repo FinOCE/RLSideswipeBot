@@ -8,6 +8,6 @@ export default class extends Event {
   }
 
   public async run(id: Fullname): Promise<void> {
-    console.log(`[Comment] Approved a comment ${id}`)
+    console.log(`[Post] Approved a post ${id}`)
   }
 }

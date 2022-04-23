@@ -6,9 +6,9 @@ export default class extends Event {
     super(client)
   }
 
-  public async run(data: RemoveProps): Promise<void> {
+  public async run(id: Fullname, spam: 'true' | 'false'): Promise<void> {
     console.log(
-      `[Remove] Removed the comment ${data.id} ${data.spam ? '(spam)' : ''}`
+      `[Comment] Removed the comment ${id} ${spam === 'true' ? '(spam)' : ''}`
     )
   }
 }
