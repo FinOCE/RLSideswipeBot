@@ -74,9 +74,13 @@ type CommentData = {
   }[]
 }
 
-type CommentFetchProps = {
-  username: string
-}
+type CommentFetchProps =
+  | {
+      username: string
+    }
+  | {
+      sr: string
+    }
 
 type CommentDistinguishProps = {
   how: 'yes' | 'no' | 'admin' | 'special'

@@ -1,26 +1,50 @@
 import Client from '@client/Client'
+import CommentStreamManager from '@managers/CommentStreamManager'
 import Listing from '@structures/Listing'
 
 export default class CommentManager {
   public constructor(private client: Client) {}
 
   /**
-   * Fetch comments from a user
+   * Stream comments from a given subreddit and handle with a callback
+   */
+  public stream(
+    subreddit: string,
+    callback: (comment: RedditComment) => void | Promise<void>
+  ): CommentStreamManager {
+    const stream = new CommentStreamManager(this.client, subreddit)
+    stream.start(callback)
+    return stream
+  }
+
+  /**
+   * Fetch comments from a user or subreddit
    */
   public async fetch(
     data: CommentFetchProps
   ): Promise<Listing<RedditComment, 't1'>> {
-    const params = new URLSearchParams({
-      sort: 'new',
-      t: 'week',
-      type: 'comments'
-    }).toString()
+    if ('username' in data) {
+      // Search by username
+      const params = new URLSearchParams({
+        sort: 'new',
+        t: 'week',
+        type: 'comments'
+      }).toString()
 
-    return this.client
-      .query<RawListing<RedditComment, 't1'>>(
-        `/user/${data.username}/comments?${params}`
+      return this.client
+        .query<RawListing<RedditComment, 't1'>>(
+          `/user/${data.username}/comments?${params}`
+        )
+        .then(res => new Listing(res))
+    } else if ('sr' in data) {
+      // Search by subreddit
+      return this.client
+        .query<RawListing<RedditComment, 't1'>>(`/r/${data.sr}/comments`)
+        .then(res => new Listing(res))
+    } else
+      throw new Error(
+        'Neither a username nor subreddit were provided to fetch comments from'
       )
-      .then(res => new Listing(res))
   }
 
   /**
