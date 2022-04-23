@@ -62,6 +62,19 @@ export default class CommentManager {
   }
 
   /**
+   * Approve a comment
+   */
+  public async approve(data: CommentApproveProps): Promise<Comment> {
+    return this.client
+      .query<ActionResponse<CommentData>>('/api/approve', {
+        method: 'POST',
+        body: data
+      })
+      .then(res => res.json.data.things[0].data)
+      .then(res => new Comment(this.client, res))
+  }
+
+  /**
    * Create a comment
    */
   public async create(data: CommentProps): Promise<Comment> {

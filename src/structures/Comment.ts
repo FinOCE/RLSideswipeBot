@@ -13,10 +13,10 @@ export default class Comment {
     downs: number
   }
   public readonly author: CommentAuthor
-  public sticked: boolean
   public readonly edited: boolean
+  public sticked: boolean
   public removed: boolean
-  public readonly approved: boolean
+  public approved: boolean
 
   public constructor(private client: Client, data: RedditComment) {
     this.id = data.name
@@ -31,8 +31,8 @@ export default class Comment {
       downs: data.downs
     }
     this.author = new CommentAuthor(data)
-    this.sticked = data.stickied
     this.edited = data.edited
+    this.sticked = data.stickied
     this.removed = data.removed
     this.approved = data.approved
   }
@@ -57,6 +57,14 @@ export default class Comment {
       id: this.id,
       how: 'yes',
       sticky: 'true'
+    })
+  }
+
+  public async approve(): Promise<Comment> {
+    this.approved = true
+
+    return this.client.comments.approve({
+      id: this.id
     })
   }
 

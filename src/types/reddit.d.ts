@@ -88,6 +88,10 @@ type CommentDistinguishProps = {
   sticky: 'true' | 'false'
 }
 
+type CommentApproveProps = {
+  id: Fullname
+}
+
 type RemoveProps = {
   id: string
   spam: 'true' | 'false'
