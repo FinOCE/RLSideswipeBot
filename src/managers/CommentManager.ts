@@ -25,7 +25,7 @@ export default class CommentManager {
    */
   public async fetch(
     data: CommentFetchProps
-  ): Promise<Listing<RedditComment, Comment>> {
+  ): Promise<Listing<RedditComment, Comment>[]> {
     if ('username' in data) {
       // Search by username
       const params = new URLSearchParams({
@@ -38,14 +38,18 @@ export default class CommentManager {
         .query<RawListing<RedditComment>>(
           `/user/${data.username}/comments?${params}`
         )
-        .then(res => new Listing(this.client, res, Comment))
+        .then(res => [new Listing(this.client, res, Comment)])
     } else if ('sr' in data) {
       // Search by subreddit or specific post
       return this.client
-        .query<RawListing<RedditComment>>(
+        .query<RawListing<RedditComment>[]>(
           `/r/${data.sr}/comments/${data.postId ?? ''}`
         )
-        .then(res => new Listing(this.client, res, Comment))
+        .then(res =>
+          Array.isArray(res)
+            ? res.map(l => new Listing(this.client, l, Comment))
+            : [new Listing(this.client, res, Comment)]
+        )
     } else
       throw new Error(
         'Neither a username nor subreddit were provided to fetch comments from'
@@ -105,7 +109,9 @@ export default class CommentManager {
         method: 'POST',
         body: Object.assign({ api_type: 'json' }, data)
       })
-      .then(res => res.json.data.things[0].data)
+      .then(res => {
+        return res.json.data.things[0].data
+      })
       .then(res => new Comment(this.client, res))
 
     this.client.emit('commentCreate', data, res)

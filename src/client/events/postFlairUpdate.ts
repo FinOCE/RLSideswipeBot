@@ -7,7 +7,7 @@ export default class extends Event {
     super(client)
   }
 
-  public async run(res: Post): Promise<void> {
-    console.log(`[Post] Updated the flair on post ${res.id}`)
+  public async run(id: string): Promise<void> {
+    console.log(`[Post] Updated the flair on post ${id}`)
   }
 }

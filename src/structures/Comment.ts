@@ -3,9 +3,9 @@ import Post from '@structures/Post'
 
 export default class Comment {
   public static readonly QUOTE_HEADER: string =
-    'This is a list of links to comments made by Psyonix Staff in this thread:\n\n'
+    'This is a list of links to comments made by Psyonix Staff in this thread: \n \n '
   public static readonly QUOTE_FOOTER: string =
-    '\n\n---\nThis is a bot providing a service. If you have any questions, please [contact the moderators](https://www.reddit.com/message/compose?to=/r/RLSideswipe).\n'
+    '\n--- \n This is a bot providing a service. If you have any questions, please [contact the moderators](https://www.reddit.com/message/compose?to=/r/RLSideswipe). \n '
   public readonly id: Fullname
   public readonly parentId: Fullname
   public readonly postId: Fullname
@@ -109,7 +109,7 @@ export default class Comment {
   }
 
   public get quote(): string {
-    return `- [__**Comment by ${this.author.username}**__](${this.url}):\n> ${this.text}`
+    return ` \n - [__**Comment by ${this.author.username}**__](${this.url}): \n ${this.text} \n`
   }
 }
 
@@ -117,12 +117,18 @@ export class CommentAuthor {
   public readonly id: Fullname
   public readonly username: string
   public readonly op: boolean
-  public readonly flair: string | null
+  public readonly flair: Flair | null
 
   public constructor(data: RedditComment) {
     this.id = data.author_fullname
     this.username = data.author
     this.op = data.is_submitter
     this.flair = data.author_flair_text
+      ? ({
+          text: data.author_flair_text,
+          class: data.author_flair_css_class,
+          modOnly: data.author_flair_type
+        } as Flair)
+      : null
   }
 }

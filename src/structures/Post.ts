@@ -1,6 +1,7 @@
 import Client from '@client/Client'
 import Comment from '@structures/Comment'
 import Listing from '@structures/Listing'
+import ThingUtil from '@utils/ThingUtil'
 
 export default class Post {
   public readonly id: Fullname
@@ -55,9 +56,12 @@ export default class Post {
     })
   }
 
-  public async flair(data: Omit<FlairProps, 'link'>): Promise<Post> {
+  public async flair(data: Omit<FlairProps, 'link'>): Promise<void> {
     this.flairText = data.text
-    return this.client.posts.flair(Object.assign({ link: this.id }, data))
+    await this.client.posts.flair(
+      this.subreddit.name,
+      Object.assign({ link: this.id }, data)
+    )
   }
 
   /**
@@ -79,10 +83,10 @@ export default class Post {
   /**
    * Fetch a list of comments from the post
    */
-  public async fetchComments(): Promise<Listing<RedditComment, Comment>> {
+  public async fetchComments(): Promise<Listing<RedditComment, Comment>[]> {
     return this.client.comments.fetch({
-      sr: this.subreddit.id,
-      postId: this.id
+      sr: this.subreddit.name,
+      postId: ThingUtil.deconstructFullname(this.id)[1]
     })
   }
 }

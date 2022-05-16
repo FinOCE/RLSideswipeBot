@@ -1,6 +1,7 @@
 import Client from '@client/Client'
 import Listing from '@structures/Listing'
 import Post from '@structures/Post'
+import fetch from 'node-fetch'
 
 export default class PostManager {
   public constructor(private client: Client) {}
@@ -55,17 +56,16 @@ export default class PostManager {
   /**
    * Update the flair of a post
    */
-  public async flair(data: FlairProps): Promise<Post> {
-    const res = await this.client
-      .query<ActionResponse<PostApproveResponse>>('/api/flair', {
+  public async flair(subreddit: string, data: FlairProps): Promise<void> {
+    await this.client.query<ActionResponse<PostApproveResponse>>(
+      `/r/${subreddit}/api/flair`,
+      {
         method: 'POST',
         body: Object.assign({ api_type: 'json' }, data)
-      })
-      .then(res => res.json.data.things[0].data)
-      .then(res => new Post(this.client, res))
+      }
+    )
 
-    this.client.emit('postFlairUpdate', res)
-    return res
+    this.client.emit('postFlairUpdate', data.link)
   }
 
   /**

@@ -1,7 +1,9 @@
 import Client from '@client/Client'
 import Comment from '@structures/Comment'
+import { TestSubreddit } from '@utils/SubredditUtil'
 import dotenv from 'dotenv'
 import process from 'process'
+import { unescape } from 'querystring'
 
 dotenv.config()
 process.stdin.resume()
@@ -25,37 +27,52 @@ client.login(
 )
 
 client.once('ready', () => {
-  client.comments.stream('RLSideswipe', async comment => {
-    if (comment.author.flair?.includes('Psyonix') && !comment.approved) {
-      comment.approve()
+  client.comments.stream('RLSideswipeBot', async comment => {
+    // Test in the testing subreddit
+    if (comment.subreddit.name === TestSubreddit.title) {
+      if (comment.author.flair?.class === 'psyuser' && !comment.approved) {
+        comment.approve()
 
-      const post = await comment.fetchPost()
+        const post = await comment.fetchPost()
+        if (!post.approved) post.approve()
 
-      // Change flair of post to PSYONIX COMMENT
-      if (!post.flairText?.includes('PSYONIX'))
-        post.flair({
-          css_class: '.linkflair-psycomment',
-          text: ':Psyonix: PSYONIX COMMENT'
-        })
+        // Change flair of post to PSYONIX COMMENT
+        if (!post.flairText?.includes('PSYONIX'))
+          post.flair({
+            css_class: TestSubreddit.postFlair.PsyonixComment.class,
+            text: TestSubreddit.postFlair.PsyonixComment.text
+          })
 
-      // Create or edit stickied comment
-      const stickied = (await post.fetchComments()).children[0]
+        // Create or edit stickied comment
+        const stickied = (await post.fetchComments())[1].children[0]
 
-      if (stickied.stickied && stickied.author.username === client.user!.name) {
-        // Stickied comment from the bot exists and can be edited
-        stickied.edit(
-          stickied.text.replace(Comment.QUOTE_FOOTER, '') +
-            comment.quote +
-            Comment.QUOTE_FOOTER
-        )
-      } else {
-        // Sticked comment from the bot doesn't exist and can be created
-        post
-          .comment(Comment.QUOTE_HEADER + comment.quote + Comment.QUOTE_FOOTER)
-          .then(comment => comment.sticky())
+        if (
+          stickied?.stickied &&
+          !stickied.removed &&
+          stickied.author.username === client.user!.name
+        ) {
+          // Stickied comment from the bot exists and can be edited
+          const text = unescape(stickied.text)
+
+          stickied
+            .edit(
+              text.substring(0, text.length - Comment.QUOTE_FOOTER.length + 1) +
+                comment.quote +
+                Comment.QUOTE_FOOTER
+            )
+            .then(() => stickied.approve())
+        } else {
+          // Sticked comment from the bot doesn't exist and can be created
+          post
+            .comment(
+              Comment.QUOTE_HEADER + comment.quote + Comment.QUOTE_FOOTER
+            )
+            .then(comment => {
+              comment.sticky()
+              comment.approve()
+            })
+        }
       }
-
-      console.log('New Psyonix comment quoted on', post.url)
     }
   })
 })

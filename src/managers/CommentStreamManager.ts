@@ -53,9 +53,13 @@ export default class CommentStream {
    * Generator iterator for the comment stream
    */
   async *[Symbol.asyncIterator]() {
-    const { children: comments } = await this.client.comments.fetch({
-      sr: this.subreddit
-    })
+    const { children: comments } = await this.client.comments
+      .fetch({
+        sr: this.subreddit
+      })
+      .then(res => res[0])
+
+    if (comments.length === 0) return
 
     const maxIndex = comments.findIndex(c => c.id === this.prev)
     this.prev = comments[0].id

@@ -24,9 +24,15 @@ export default class Listing<T1, T2> {
     this.dist = listing.data.dist
     this.modhash = listing.data.modhash
     this.geoFilter = listing.data.geo_filter
-    this.type = ThingUtil.convertTypePrefixToName(
-      listing.data.children[0]?.kind
-    )
+
+    try {
+      this.type = ThingUtil.convertTypePrefixToName(
+        listing.data.children[0]?.kind
+      )
+    } catch (err) {
+      this.type = 'ACCOUNT'
+    }
+
     this.children = listing.data.children.map(
       c => new constructor(this.client, c.data)
     )
